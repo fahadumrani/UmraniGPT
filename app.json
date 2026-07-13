@@ -1,0 +1,42 @@
+{
+  "provider": "ollama",
+
+  "providers": {
+    "ollama": {
+      "enabled": true,
+      "url": "http://localhost:11434",
+      "label": "Ollama (local)"
+    },
+    "openai_compat": {
+      "enabled": false,
+      "url": "http://localhost:1234/v1",
+      "apiKey": "",
+      "label": "LM Studio / vLLM / LocalAI"
+    }
+  },
+
+  "defaultModel": "umrani2.1",
+
+  "generation": {
+    "temperature": 0.7,
+    "topP": 0.9,
+    "topK": 40,
+    "repeatPenalty": 1.1,
+    "contextLength": 4096,
+    "seed": -1,
+    "maxTokens": 8192,
+    "streaming": true
+  },
+
+  "system": {
+    "systemPrompt": "",
+    "timeout": 120000
+  },
+
+  "memory": {
+    "enabled": true,
+    "extractEvery": 1,
+    "maxFacts": 15,
+    "model": ""
+  }
+}
