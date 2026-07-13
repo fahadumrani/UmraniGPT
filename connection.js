@@ -19,7 +19,7 @@ window.UMRANI_CONFIG = {
      Local:           http://localhost:3001
      Cloudflare Tunnel: https://xxxx-xxxx.trycloudflare.com
      Custom domain:   https://api.yourdomain.com             */
-  BACKEND_URL: 'https://episode-sees-maui-premium.trycloudflare.com  ',
+  BACKEND_URL: 'https://indicate-modems-variance-controllers.trycloudflare.com    ',
 
   /* ---- Google OAuth ---- (optional)
      Google Cloud Console se milega:
