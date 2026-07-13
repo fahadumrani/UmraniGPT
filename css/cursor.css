@@ -1,0 +1,118 @@
+/* ============================================================
+   UMRANIGPT — Custom Dot & Ring Cursor
+   - Inner filled dot (8px) that tracks the mouse precisely
+   - Outer ring (28px) that follows with a slight spring lag
+   - Theme-aware: uses --accent-primary from current theme
+   - Auto-hides on touch/mobile devices
+   - Hides native cursor site-wide; restores it only when
+     a text-input field is active (so typing feels normal)
+   - GPU-composited with transform — no layout thrashing
+============================================================ */
+
+/* ---- Hide native cursor everywhere except text fields ---- */
+.has-custom-cursor *,
+.has-custom-cursor *::before,
+.has-custom-cursor *::after {
+  cursor: none !important;
+}
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor [contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* ---- Cursor elements ---- */
+#cursor-dot,
+#cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+  /* Start hidden — JS positions them on first mousemove */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* ---- Inner dot ---- */
+#cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-primary, #8b5cf6);
+  box-shadow: 0 0 6px var(--accent-glow, rgba(139, 92, 246, 0.5));
+  /* Offset so the center of the dot is at the pointer position */
+  margin: -4px 0 0 -4px;
+  transition:
+    opacity 0.25s ease,
+    width 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ---- Outer ring ---- */
+#cursor-ring {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--accent-primary, #8b5cf6);
+  background: transparent;
+  opacity: 0;
+  margin: -14px 0 0 -14px;
+  transition:
+    opacity 0.25s ease,
+    width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s ease,
+    margin 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---- Hover state — ring bada hota hai, dot wahi rehta hai ---- */
+.has-custom-cursor.cursor-hover #cursor-dot {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  /* background intentionally not changed — dot apna accent color rakhta hai */
+}
+.has-custom-cursor.cursor-hover #cursor-ring {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-color: var(--accent-primary, #8b5cf6);
+  opacity: 0.6 !important;
+}
+
+/* ---- Click state ---- */
+.has-custom-cursor.cursor-click #cursor-dot {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+}
+.has-custom-cursor.cursor-click #cursor-ring {
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-color: var(--accent-secondary, #7c3aed);
+}
+
+/* ---- Text field state — hide dot, show native cursor ---- */
+.has-custom-cursor.cursor-text #cursor-dot {
+  opacity: 0 !important;
+}
+.has-custom-cursor.cursor-text #cursor-ring {
+  opacity: 0 !important;
+}
+
+/* ---- Visible state (after first mousemove) ---- */
+.has-custom-cursor #cursor-dot.is-visible   { opacity: 1; }
+.has-custom-cursor #cursor-ring.is-visible  { opacity: 0.4; }
+
+/* ---- Hidden while window is blurred ---- */
+.has-custom-cursor.cursor-hidden #cursor-dot,
+.has-custom-cursor.cursor-hidden #cursor-ring { opacity: 0 !important; }
+
+/* ---- Never on touch/coarse-pointer devices ---- */
+@media (pointer: coarse) {
+  #cursor-dot, #cursor-ring { display: none !important; }
+}

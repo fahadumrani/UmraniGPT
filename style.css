@@ -1,0 +1,174 @@
+/* ============================================
+   UMRANIGPT - Main Stylesheet
+   Imports all CSS modules in correct order
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@import 'css/variables.css';
+@import 'css/animations.css';
+@import 'css/layout.css';
+@import 'css/sidebar.css';
+@import 'css/chat.css';
+@import 'css/components.css';
+@import 'css/modal.css';
+@import 'css/responsive.css';
+@import 'css/auth.css';
+@import 'css/admin.css';
+@import 'css/cursor.css';
+
+/* ---- Toast Notifications (global) ---- */
+
+#toast-container {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 260px;
+  max-width: 360px;
+  pointer-events: all;
+  position: relative;
+  overflow: hidden;
+  animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+}
+
+.toast.removing {
+  animation: toastSlideOut 0.3s ease forwards;
+}
+
+.toast-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.toast.success .toast-icon { color: var(--status-online); }
+.toast.error .toast-icon { color: var(--status-offline); }
+.toast.warning .toast-icon { color: var(--status-connecting); }
+.toast.info .toast-icon { color: var(--accent-primary); }
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.toast-message {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  transition: color var(--t-fast);
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  color: var(--text-primary);
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.toast-progress.animating {
+  animation: toastProgress linear forwards;
+}
+
+/* ---- Highlight.js theme override ---- */
+.hljs {
+  background: var(--code-bg) !important;
+  color: var(--code-text) !important;
+}
+
+/* ---- KaTeX override ---- */
+.katex { color: var(--text-primary); }
+
+/* ---- Selection Colors ---- */
+.message-wrapper.user .message-bubble ::selection {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ---- Focus States ---- */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ---- Utility classes ---- */
+.hidden { display: none !important; }
+.invisible { visibility: hidden !important; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.no-select { user-select: none; }
+.pointer { cursor: pointer; }
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.font-mono { font-family: var(--font-mono); }
+.gradient-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

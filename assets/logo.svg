@@ -1,0 +1,63 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#1a0533"/>
+      <stop offset="100%" stop-color="#0d0520"/>
+    </linearGradient>
+    <linearGradient id="uGrad" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#a78bfa"/>
+      <stop offset="50%"  stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#8b5cf6" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="roundedClip">
+      <rect width="100" height="100" rx="22" ry="22"/>
+    </clipPath>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="100" height="100" rx="22" ry="22" fill="url(#bgGrad)"/>
+
+  <!-- Inner glow overlay -->
+  <rect width="100" height="100" rx="22" ry="22" fill="url(#glowGrad)" opacity="0.5"/>
+
+  <!-- Outer border ring -->
+  <rect x="1" y="1" width="98" height="98" rx="21" ry="21"
+    stroke="url(#uGrad)" stroke-width="1.5" fill="none" opacity="0.5"/>
+
+  <!-- Glow circle behind U -->
+  <circle cx="50" cy="56" r="28" fill="url(#uGrad)" opacity="0.08" filter="url(#softglow)"/>
+
+  <!-- U letterform — thick modern rounded U -->
+  <!-- Left vertical bar -->
+  <rect x="26" y="22" width="14" height="42" rx="7" ry="7" fill="url(#uGrad)" filter="url(#glow)"/>
+  <!-- Right vertical bar -->
+  <rect x="60" y="22" width="14" height="42" rx="7" ry="7" fill="url(#uGrad)" filter="url(#glow)"/>
+  <!-- Bottom curve -->
+  <path d="M33 57 Q33 76 50 76 Q67 76 67 57" stroke="url(#uGrad)" stroke-width="14"
+    stroke-linecap="round" fill="none" filter="url(#glow)"/>
+
+  <!-- Accent dot — top left -->
+  <circle cx="33" cy="22" r="5" fill="#a78bfa" opacity="0.9"/>
+  <!-- Accent dot — top right -->
+  <circle cx="67" cy="22" r="5" fill="#ec4899" opacity="0.9"/>
+
+  <!-- Small sparkle top-right corner -->
+  <g transform="translate(76, 18)" opacity="0.7">
+    <line x1="0" y1="-5" x2="0" y2="5"  stroke="#c4b5fd" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="-5" y1="0" x2="5" y2="0"  stroke="#c4b5fd" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="-3.5" y1="-3.5" x2="3.5" y2="3.5" stroke="#c4b5fd" stroke-width="1" stroke-linecap="round"/>
+    <line x1="3.5" y1="-3.5" x2="-3.5" y2="3.5" stroke="#c4b5fd" stroke-width="1" stroke-linecap="round"/>
+  </g>
+</svg>

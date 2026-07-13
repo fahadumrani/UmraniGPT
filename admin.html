@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="UmraniGPT Administrator Dashboard">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · UmraniGPT</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+
+  <!-- sirf connection.js edit karein — URL wahan set hogi -->
+  <script src="connection.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body class="admin-body" style="display:none;" id="admin-body">
+
+  <div class="bg-decoration bg-blob-1" aria-hidden="true"></div>
+  <div class="bg-decoration bg-blob-2" aria-hidden="true"></div>
+  <div id="cursor-dot"  aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+  <div class="admin-sidebar-overlay" id="admin-sidebar-overlay"></div>
+
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-brand">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="alg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#a78bfa"/><stop offset="50%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#ec4899"/>
+          </linearGradient>
+          <linearGradient id="albg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#1a0533"/><stop offset="100%" stop-color="#0d0520"/>
+          </linearGradient>
+        </defs>
+        <rect width="80" height="80" rx="17" fill="url(#albg)"/>
+        <rect x="20" y="17" width="11" height="34" rx="5.5" fill="url(#alg)"/>
+        <rect x="49" y="17" width="11" height="34" rx="5.5" fill="url(#alg)"/>
+        <path d="M25.5 46 Q25.5 62 40 62 Q54.5 62 54.5 46" stroke="url(#alg)" stroke-width="11" stroke-linecap="round" fill="none"/>
+        <circle cx="25.5" cy="17" r="4" fill="#a78bfa"/><circle cx="54.5" cy="17" r="4" fill="#ec4899"/>
+      </svg>
+      <div class="admin-brand-text">
+        <strong>UmraniGPT</strong>
+        <span>Administrator</span>
+      </div>
+    </div>
+
+    <nav class="admin-nav" aria-label="Admin navigation">
+      <button class="admin-nav-btn is-active" data-view="dashboard">
+        <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
+      </button>
+      <button class="admin-nav-btn" data-view="users">
+        <i class="fa-solid fa-users"></i><span>Users</span>
+      </button>
+      <button class="admin-nav-btn" data-view="model">
+        <i class="fa-solid fa-brain"></i><span>Model Control</span>
+      </button>
+      <button class="admin-nav-btn" data-view="provider">
+        <i class="fa-solid fa-plug-circle-bolt"></i><span>Provider</span>
+      </button>
+      <button class="admin-nav-btn" data-view="system">
+        <i class="fa-solid fa-server"></i><span>System</span>
+      </button>
+      <button class="admin-nav-btn" data-view="logs">
+        <i class="fa-solid fa-list-check"></i><span>Logs</span>
+      </button>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <div class="admin-account">
+        <div class="admin-account-avatar" id="admin-avatar">A</div>
+        <div class="admin-account-info">
+          <span id="admin-email">—</span>
+          <span>Administrator</span>
+        </div>
+      </div>
+      <button class="admin-nav-btn admin-logout-btn" id="admin-logout-btn">
+        <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button type="button" class="admin-btn admin-btn-sm" id="admin-mobile-menu-btn" aria-label="Toggle menu" style="display:none;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <h1 id="admin-view-title">Dashboard</h1>
+          <p id="admin-view-subtitle">Live overview of your UmraniGPT deployment</p>
+        </div>
+      </div>
+      <div class="admin-theme-toggle" role="group" aria-label="Theme">
+        <button type="button" data-theme-choice="light" aria-label="Light mode"><i class="fa-solid fa-sun"></i></button>
+        <button type="button" data-theme-choice="dark" aria-label="Dark mode"><i class="fa-solid fa-moon"></i></button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- ===== Dashboard view ===== -->
+      <section class="admin-view is-active" id="view-dashboard">
+        <div class="admin-stats-grid" id="admin-stats-grid">
+          <!-- stat cards injected by js/admin.js -->
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>Active users over time <span class="admin-live-dot" id="admin-activity-live-dot" title="Live"></span></h2>
+            <div class="admin-toolbar">
+              <select class="admin-filter-select" id="admin-activity-range">
+                <option value="6">Last 6 hours</option>
+                <option value="24" selected>Last 24 hours</option>
+                <option value="72">Last 3 days</option>
+                <option value="168">Last 7 days</option>
+              </select>
+            </div>
+          </div>
+          <div style="padding:16px 20px;">
+            <canvas id="admin-activity-chart" height="90"></canvas>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>Token &amp; request usage</h2>
+            <div class="admin-toolbar">
+              <select class="admin-filter-select" id="admin-usage-range">
+                <option value="6">Last 6 hours</option>
+                <option value="24" selected>Last 24 hours</option>
+                <option value="72">Last 3 days</option>
+                <option value="168">Last 7 days</option>
+              </select>
+            </div>
+          </div>
+          <div style="padding:16px 20px;">
+            <canvas id="admin-usage-chart" height="90"></canvas>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>Recently registered</h2>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                  <th>Last login</th>
+                </tr>
+              </thead>
+              <tbody id="admin-recent-users-body">
+                <tr class="admin-loading-row"><td colspan="5">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Users view ===== -->
+      <section class="admin-view" id="view-users">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>All users</h2>
+            <div class="admin-toolbar">
+              <input type="search" class="admin-search-input" id="admin-user-search" placeholder="Search by email…">
+              <select class="admin-filter-select" id="admin-user-status-filter">
+                <option value="">All statuses</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+              </select>
+              <select class="admin-filter-select" id="admin-user-role-filter">
+                <option value="">All roles</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              <a class="admin-btn" id="admin-export-btn" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="fa-solid fa-file-export"></i> Export CSV
+              </a>
+            </div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Usage</th>
+                  <th>Registered</th>
+                  <th>Last login</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body">
+                <tr class="admin-loading-row"><td colspan="7">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="admin-pagination">
+            <span id="admin-users-count">—</span>
+            <div class="admin-pagination-controls">
+              <button class="admin-btn admin-btn-sm" id="admin-users-prev"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="admin-btn admin-btn-sm" id="admin-users-next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Model Control view ===== -->
+      <section class="admin-view" id="view-model">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>Active model</h2>
+            <div class="admin-toolbar">
+              <button class="admin-btn admin-btn-sm" id="admin-model-test-btn"><i class="fa-solid fa-vial"></i> Test Model</button>
+              <button class="admin-btn admin-btn-sm" id="admin-model-refresh-btn"><i class="fa-solid fa-rotate"></i> Refresh list</button>
+            </div>
+          </div>
+          <div style="padding:20px;">
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 14px;">
+              This model is applied automatically to every user. Users never see this list or choose a model themselves.
+              "Connected" only means the AI server is reachable — use <strong>Test Model</strong> to confirm it actually replies.
+            </p>
+            <div id="admin-model-status" style="margin-bottom:14px;"></div>
+            <div id="admin-model-test-result" style="display:none;margin-bottom:14px;"></div>
+            <div id="admin-model-list" class="admin-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+              <div class="admin-empty-state"><i class="fa-solid fa-spinner"></i>Loading models…</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Provider view ===== -->
+      <section class="admin-view" id="view-provider">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>AI Provider Configuration</h2>
+            <div class="admin-toolbar">
+              <button class="admin-btn admin-btn-sm admin-btn-primary" id="admin-provider-save-btn">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+              </button>
+            </div>
+          </div>
+          <div style="padding:20px;">
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 18px;">
+              Switch between AI backends without restarting the server. Changes are saved to <code>server/config/app.json</code> and take effect immediately.
+            </p>
+
+            <div class="settings-row" style="margin-bottom:16px;">
+              <div class="settings-row-label" style="min-width:160px;">
+                <span style="font-weight:600;">Active Provider</span>
+              </div>
+              <select class="admin-filter-select" id="admin-provider-select" style="min-width:220px;">
+                <option value="ollama">Ollama (local)</option>
+                <option value="openai_compat">OpenAI-compatible (LM Studio / vLLM / LocalAI)</option>
+              </select>
+            </div>
+
+            <!-- Ollama section -->
+            <div id="admin-provider-ollama" style="margin-bottom:20px;">
+              <div class="admin-panel-header" style="padding:12px 0;border:none;"><h2 style="font-size:0.85rem;">Ollama Settings</h2></div>
+              <label style="font-size:0.8rem;color:var(--text-secondary);">Server URL</label>
+              <input type="text" class="admin-search-input" id="admin-ollama-url" placeholder="http://localhost:11434" style="width:100%;margin-top:6px;">
+            </div>
+
+            <!-- OpenAI-compat section -->
+            <div id="admin-provider-openai" style="margin-bottom:20px;display:none;">
+              <div class="admin-panel-header" style="padding:12px 0;border:none;"><h2 style="font-size:0.85rem;">OpenAI-Compatible Settings</h2></div>
+              <label style="font-size:0.8rem;color:var(--text-secondary);">Base URL (include /v1)</label>
+              <input type="text" class="admin-search-input" id="admin-openai-url" placeholder="http://localhost:1234/v1" style="width:100%;margin:6px 0 12px;">
+              <label style="font-size:0.8rem;color:var(--text-secondary);">API Key (optional for local providers)</label>
+              <input type="password" class="admin-search-input" id="admin-openai-key" placeholder="Leave blank for local providers (LM Studio, vLLM, LocalAI)" style="width:100%;margin-top:6px;">
+            </div>
+
+            <!-- Generation defaults -->
+            <div class="admin-panel-header" style="padding:12px 0;border:none;"><h2 style="font-size:0.85rem;">Generation Defaults</h2></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;">
+              <div>
+                <label style="font-size:0.78rem;color:var(--text-secondary);">Default Temperature</label>
+                <input type="number" class="admin-search-input" id="admin-gen-temperature" min="0" max="2" step="0.1" style="width:100%;margin-top:4px;">
+              </div>
+              <div>
+                <label style="font-size:0.78rem;color:var(--text-secondary);">Context Length</label>
+                <input type="number" class="admin-search-input" id="admin-gen-context" min="512" max="131072" step="512" style="width:100%;margin-top:4px;">
+              </div>
+              <div>
+                <label style="font-size:0.78rem;color:var(--text-secondary);">Max Tokens</label>
+                <input type="number" class="admin-search-input" id="admin-gen-maxtokens" min="256" max="65536" style="width:100%;margin-top:4px;">
+              </div>
+            </div>
+
+            <!-- System prompt -->
+            <label style="font-size:0.8rem;color:var(--text-secondary);">Global System Prompt (admin-level, added to all users)</label>
+            <textarea id="admin-system-prompt" rows="3" placeholder="Optional — appears before any user's personal system prompt." style="width:100%;margin-top:6px;padding:10px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);font-family:inherit;font-size:0.85rem;resize:vertical;"></textarea>
+
+            <div id="admin-provider-result" style="display:none;margin-top:14px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== System view ===== -->
+      <section class="admin-view" id="view-system">
+        <div class="admin-stats-grid" id="admin-system-grid">
+          <div class="admin-empty-state"><i class="fa-solid fa-spinner"></i>Loading system stats…</div>
+        </div>
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Connection details</h2></div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="admin-system-details"><tbody></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Logs view ===== -->
+      <section class="admin-view" id="view-logs">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2>Error &amp; warning logs</h2>
+            <div class="admin-toolbar">
+              <select class="admin-filter-select" id="admin-log-level-filter">
+                <option value="">All levels</option>
+                <option value="error">Errors</option>
+                <option value="warning">Warnings</option>
+              </select>
+              <a class="admin-btn" id="admin-logs-export-btn" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="fa-solid fa-file-export"></i> Export CSV
+              </a>
+            </div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Level</th><th>Message</th><th>Time</th></tr></thead>
+              <tbody id="admin-logs-body"><tr class="admin-loading-row"><td colspan="3">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="admin-pagination">
+            <span id="admin-logs-count">—</span>
+            <div class="admin-pagination-controls">
+              <button class="admin-btn admin-btn-sm" id="admin-logs-prev"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="admin-btn admin-btn-sm" id="admin-logs-next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <p class="admin-credit">Thanks to <a href="https://susrc.com/" target="_blank" rel="noopener noreferrer">SUSRC</a> — susrc.com</p>
+  </div>
+
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
+
+  <div id="admin-memory-modal" class="admin-modal-overlay" style="display:none;">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <h3 id="admin-memory-title">Memory</h3>
+        <button class="admin-btn admin-btn-sm" id="admin-memory-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="admin-modal-body" id="admin-memory-body">Loading…</div>
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-danger" id="admin-memory-reset-btn">Reset Memory</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/admin-users.js"></script>
+  <script src="js/admin-activity.js"></script>
+  <script src="js/admin-model.js"></script>
+  <script src="js/admin-provider.js"></script>
+  <script src="js/admin-system.js"></script>
+  <script src="js/admin-logs.js"></script>
+  <script>window.addEventListener('load', () => { if (window.AppCursor) window.AppCursor.init(); });</script>
+</body>
+</html>

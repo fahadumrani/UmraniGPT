@@ -1,0 +1,319 @@
+/* ============================================
+   UMRANIGPT - Responsive
+   ============================================ */
+
+/* ---- Tablet (max 1024px) ---- */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ---- Mobile (max 768px) ---- */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+    --header-height: 52px;
+    --text-3xl: 1.5rem;
+    --text-2xl: 1.25rem;
+  }
+
+  /* Sidebar becomes overlay on mobile */
+  #sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    opacity: 1 !important;
+    transition: transform var(--t-slow);
+    box-shadow: var(--shadow-xl);
+  }
+
+  #sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  #sidebar.collapsed {
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    opacity: 1 !important;
+    transform: translateX(-100%);
+  }
+
+  /* Main fills full width */
+  #main {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  /* Mobile menu button visible */
+  .btn-mobile-menu {
+    display: flex !important;
+  }
+
+  /* Hide sidebar toggle in header on mobile (it becomes mobile menu) */
+  #sidebar-toggle-btn {
+    display: none;
+  }
+
+  /* Messages padding adjustment */
+  #messages {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  /* Bubble max width wider on mobile */
+  :root {
+    --bubble-max-width: 92%;
+  }
+
+  /* Input area */
+  #input-area {
+    padding: var(--space-3);
+  }
+
+  /* Welcome screen */
+  .suggestion-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .welcome-title {
+    font-size: var(--text-2xl);
+  }
+
+  /* Header model selector */
+  .model-selector-btn {
+    max-width: 160px;
+    min-width: 100px;
+  }
+
+  .model-selector-btn .model-name {
+    display: none;
+  }
+
+  /* Status text hidden on mobile */
+  .status-text {
+    display: none;
+  }
+
+  /* Settings modal */
+  .settings-layout {
+    flex-direction: column;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-1);
+    background: transparent;
+  }
+
+  .settings-nav-item {
+    border-right: none;
+    border-bottom: 2px solid transparent;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+  }
+
+  .settings-nav-item.active {
+    border-bottom-color: var(--accent-primary);
+  }
+
+  .settings-nav-item span {
+    display: none;
+  }
+
+  .settings-nav-item i {
+    margin: 0;
+    width: auto;
+  }
+
+  /* Theme grid on mobile */
+  .theme-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Modal full-screen on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-height: 92vh;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    max-width: 100%;
+    border-bottom: none;
+  }
+
+  .modal:not(.confirm-dialog) {
+    min-height: 70vh;
+  }
+
+  /* Avatar hidden on mobile for space */
+  .msg-avatar {
+    display: none;
+  }
+
+  .message-row {
+    max-width: 96%;
+  }
+
+  /* Scroll button */
+  #scroll-btn {
+    bottom: 90px;
+  }
+
+  /* Sidebar header hides resize handle */
+  #sidebar .resize-handle {
+    display: none;
+  }
+
+  /* Loading screen */
+  .loading-title {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* ---- Small Mobile (max 480px) ---- */
+@media (max-width: 480px) {
+  :root {
+    --sidebar-width: 100vw;
+  }
+
+  #sidebar {
+    width: 100vw !important;
+    min-width: 100vw !important;
+  }
+
+  .model-selector-btn {
+    min-width: 80px;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .settings-panel {
+    padding: var(--space-4);
+  }
+
+  .modal-header {
+    padding: var(--space-4);
+  }
+
+  .modal-footer {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .header-right .status-indicator {
+    display: none;
+  }
+}
+
+/* ---- Desktop (min 1200px) ---- */
+@media (min-width: 1200px) {
+  #messages {
+    padding: var(--space-8) var(--space-8);
+  }
+
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  :root {
+    --bubble-max-width: 80%;
+  }
+}
+
+/* ---- Large Desktop (min 1600px) ---- */
+@media (min-width: 1600px) {
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #messages {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .message-wrapper {
+    max-width: 100%;
+  }
+}
+
+/* ---- Print styles ---- */
+@media print {
+  #sidebar,
+  #header,
+  #input-area,
+  #scroll-btn,
+  .message-actions,
+  .message-meta {
+    display: none !important;
+  }
+
+  #messages {
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+
+  .message-bubble {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+}
+
+/* ---- Touch devices ---- */
+@media (hover: none) {
+  .message-actions,
+  .chat-item-actions,
+  .message-meta,
+  .chat-item-time {
+    opacity: 1;
+  }
+
+  .code-block-btn {
+    font-size: var(--text-xs);
+    padding: 4px 10px;
+  }
+}
+
+/* ---- High contrast mode ---- */
+@media (prefers-contrast: high) {
+  :root {
+    --border-default: rgba(255, 255, 255, 0.25);
+    --border-strong: rgba(255, 255, 255, 0.4);
+    --text-secondary: var(--text-primary);
+  }
+
+  .message-bubble {
+    border-width: 2px;
+  }
+}
+
+/* ---- Wide sidebar mode ---- */
+.sidebar-wide {
+  --sidebar-width: 320px;
+}

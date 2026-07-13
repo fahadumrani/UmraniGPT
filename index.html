@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="UmraniGPT — Premium AI Assistant">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="UmraniGPT">
+  <title>UmraniGPT</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+  <!-- Apply saved theme immediately to prevent flash-of-wrong-theme -->
+  <script>
+    try {
+      const s = JSON.parse(localStorage.getItem('umrani_settings') || '{}');
+      if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+    } catch(e) {}
+  </script>
+
+  <!-- ============================================================
+       DEVELOPER CONFIGURATION
+       Edit the value below to point to your AI server.
+       Format: 'https://your-tunnel.trycloudflare.com'
+       All AI behaviour settings are in js/config.js → AppConfig.AI
+  ============================================================ -->
+  <!-- ============================================================
+       CONNECTION SETTINGS — sirf connection.js edit karein
+  ============================================================ -->
+  <script src="connection.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css" id="hljs-theme">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="preload">
+
+<!-- Loading Screen -->
+<div id="loading-screen" role="status" aria-label="Loading UmraniGPT">
+  <div class="loading-content">
+    <div class="loading-logo-wrap">
+      <div class="loading-ring"></div>
+      <div class="loading-ring-2"></div>
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="loading-logo">
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#a78bfa"/>
+            <stop offset="50%"  stop-color="#8b5cf6"/>
+            <stop offset="100%" stop-color="#ec4899"/>
+          </linearGradient>
+          <linearGradient id="lbg1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#1a0533"/>
+            <stop offset="100%" stop-color="#0d0520"/>
+          </linearGradient>
+          <filter id="lglow1"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="80" height="80" rx="17" fill="url(#lbg1)"/>
+        <rect x="1" y="1" width="78" height="78" rx="16" stroke="url(#lg1)" stroke-width="1.2" fill="none" opacity="0.5"/>
+        <rect x="20" y="17" width="11" height="34" rx="5.5" fill="url(#lg1)" filter="url(#lglow1)"/>
+        <rect x="49" y="17" width="11" height="34" rx="5.5" fill="url(#lg1)" filter="url(#lglow1)"/>
+        <path d="M25.5 46 Q25.5 62 40 62 Q54.5 62 54.5 46" stroke="url(#lg1)" stroke-width="11" stroke-linecap="round" fill="none" filter="url(#lglow1)"/>
+        <circle cx="25.5" cy="17" r="4" fill="#a78bfa"/>
+        <circle cx="54.5" cy="17" r="4" fill="#ec4899"/>
+      </svg>
+    </div>
+    <h1 class="loading-title">UmraniGPT</h1>
+    <p class="loading-subtitle">AI Assistant</p>
+    <div class="loading-progress-wrap">
+      <div class="loading-progress-bar"></div>
+    </div>
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div class="bg-decoration bg-blob-1" aria-hidden="true"></div>
+<div class="bg-decoration bg-blob-2" aria-hidden="true"></div>
+
+<!-- Custom dot & ring cursor -->
+<div id="cursor-dot"  aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+<div class="overlay" id="mobile-overlay" role="presentation"></div>
+
+<div id="drag-overlay" aria-hidden="true">
+  <div class="drag-overlay-content">
+    <i class="fa-solid fa-file-arrow-up"></i>
+    <span>Drop files to attach</span>
+  </div>
+</div>
+
+<div id="context-menu" role="menu"></div>
+<div id="toast-container" role="region" aria-live="polite"></div>
+
+<!-- ============================================================
+     APP SHELL
+============================================================ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" role="navigation" aria-label="Chat history">
+    <div class="sidebar-header">
+      <a class="sidebar-logo" href="#" aria-label="UmraniGPT Home">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="slg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#a78bfa"/>
+              <stop offset="50%"  stop-color="#8b5cf6"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+            <linearGradient id="sbg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#1a0533"/>
+              <stop offset="100%" stop-color="#0d0520"/>
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="9" fill="url(#sbg)"/>
+          <rect x="0.6" y="0.6" width="38.8" height="38.8" rx="8.5" stroke="url(#slg)" stroke-width="1" fill="none" opacity="0.5"/>
+          <rect x="8"    y="7"  width="5"  height="16" rx="2.5" fill="url(#slg)"/>
+          <rect x="27"   y="7"  width="5"  height="16" rx="2.5" fill="url(#slg)"/>
+          <path d="M10.5 19 Q10.5 30 20 30 Q29.5 30 29.5 19" stroke="url(#slg)" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <circle cx="10.5" cy="7" r="2.2" fill="#a78bfa"/>
+          <circle cx="29.5" cy="7" r="2.2" fill="#ec4899"/>
+        </svg>
+        <span class="sidebar-logo-text">UmraniGPT</span>
+      </a>
+      <button class="btn-icon" id="sidebar-toggle-btn" title="Collapse sidebar" aria-label="Collapse sidebar">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-new-chat">
+      <button class="btn-new-chat" id="new-chat-btn" aria-label="Start new chat">
+        <i class="fa-solid fa-plus"></i>
+        <span>New Chat</span>
+        <span style="margin-left:auto;font-size:10px;opacity:0.6;">Ctrl+N</span>
+      </button>
+    </div>
+
+    <div class="sidebar-search">
+      <input type="search" id="sidebar-search-input" class="sidebar-search-input"
+        placeholder="Search chats…" aria-label="Search chats" autocomplete="off">
+      <i class="fa-solid fa-search sidebar-search-icon" aria-hidden="true"></i>
+    </div>
+
+    <div class="sidebar-content" role="list">
+      <div class="sidebar-section" id="section-pinned" style="display:none;">
+        <div class="sidebar-section-header">
+          <span><i class="fa-solid fa-thumbtack" style="margin-right:6px;color:var(--accent-primary);font-size:11px;"></i>Pinned</span>
+        </div>
+        <div class="sidebar-section-content" id="pinned-list" role="list"></div>
+      </div>
+      <div class="sidebar-section" id="section-today" style="display:none;">
+        <div class="sidebar-section-header"><span>Today</span></div>
+        <div class="sidebar-section-content" id="today-list" role="list"></div>
+      </div>
+      <div class="sidebar-section" id="section-yesterday" style="display:none;">
+        <div class="sidebar-section-header"><span>Yesterday</span></div>
+        <div class="sidebar-section-content" id="yesterday-list" role="list"></div>
+      </div>
+      <div class="sidebar-section" id="section-week" style="display:none;">
+        <div class="sidebar-section-header"><span>This Week</span></div>
+        <div class="sidebar-section-content" id="week-list" role="list"></div>
+      </div>
+      <div class="sidebar-section" id="section-older" style="display:none;">
+        <div class="sidebar-section-header"><span>Older</span></div>
+        <div class="sidebar-section-content" id="older-list" role="list"></div>
+      </div>
+      <div class="sidebar-empty" id="sidebar-empty-state" style="display:none;">
+        <i class="fa-regular fa-comments"></i>
+        <span>No chats yet. Start a conversation!</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="settings-footer-btn" aria-label="Settings">
+        <i class="fa-solid fa-gear"></i><span>Settings</span>
+        <span style="margin-left:auto;font-size:10px;opacity:0.5;">Ctrl+,</span>
+      </button>
+      <button class="sidebar-footer-btn" id="theme-footer-btn" aria-label="Cycle theme">
+        <i class="fa-solid fa-palette"></i><span>Theme</span>
+        <span style="margin-left:auto;font-size:10px;opacity:0.5;">Ctrl+Shift+T</span>
+      </button>
+      <button class="sidebar-footer-btn" id="shortcuts-footer-btn" aria-label="Shortcuts">
+        <i class="fa-solid fa-keyboard"></i><span>Shortcuts</span>
+        <span style="margin-left:auto;font-size:10px;opacity:0.5;">Ctrl+/</span>
+      </button>
+      <button class="sidebar-footer-btn" id="export-all-footer-btn" aria-label="Export all">
+        <i class="fa-solid fa-file-export"></i><span>Export All</span>
+      </button>
+      <button class="sidebar-footer-btn" id="logout-footer-btn" aria-label="Logout">
+        <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+      </button>
+    </div>
+
+    <div class="resize-handle" aria-hidden="true"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main" role="main">
+    <header id="header" role="banner">
+      <div class="header-left">
+        <button class="btn-icon btn-mobile-menu" id="mobile-menu-btn"
+          style="display:none;" aria-label="Open menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="header-brand" aria-hidden="true">
+          <span>UmraniGPT</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="status-indicator" id="connection-status"
+          role="status" aria-live="polite" style="cursor:pointer;" title="Server status">
+          <div class="status-dot connecting" id="status-dot"></div>
+          <span class="status-text" id="status-text">Connecting…</span>
+          <span class="latency-pill" id="status-latency" style="display:none;"></span>
+        </div>
+        <button class="btn-icon" id="export-chat-btn" title="Export chat" data-tooltip="Export">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <button class="btn-icon" id="clear-chat-btn" title="Clear chat" data-tooltip="Clear">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </header>
+
+    <div id="chat-window">
+      <div id="welcome-screen" role="region" aria-label="Welcome">
+        <div class="welcome-logo" aria-hidden="true">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="wlg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#a78bfa"/>
+                <stop offset="50%"  stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+              <linearGradient id="wbg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#1a0533"/>
+                <stop offset="100%" stop-color="#0d0520"/>
+              </linearGradient>
+              <filter id="wglow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <rect width="80" height="80" rx="17" fill="url(#wbg)"/>
+            <rect x="1" y="1" width="78" height="78" rx="16" stroke="url(#wlg)" stroke-width="1.2" fill="none" opacity="0.45"/>
+            <circle cx="40" cy="46" r="22" fill="url(#wlg)" opacity="0.06" filter="url(#wglow)"/>
+            <rect x="20" y="17" width="11" height="34" rx="5.5" fill="url(#wlg)" filter="url(#wglow)"/>
+            <rect x="49" y="17" width="11" height="34" rx="5.5" fill="url(#wlg)" filter="url(#wglow)"/>
+            <path d="M25.5 46 Q25.5 62 40 62 Q54.5 62 54.5 46" stroke="url(#wlg)" stroke-width="11" stroke-linecap="round" fill="none" filter="url(#wglow)"/>
+            <circle cx="25.5" cy="17" r="4" fill="#a78bfa"/>
+            <circle cx="54.5" cy="17" r="4" fill="#ec4899"/>
+            <g transform="translate(66,14)" opacity="0.65">
+              <line x1="0" y1="-4" x2="0" y2="4"  stroke="#c4b5fd" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="-4" y1="0" x2="4" y2="0"  stroke="#c4b5fd" stroke-width="1.2" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <h1 class="welcome-title">How can I help you today?</h1>
+        <p class="welcome-subtitle">Your private AI assistant — fast, secure, and running on your own hardware.</p>
+        <div class="suggestion-grid" role="list" aria-label="Suggestions"></div>
+      </div>
+
+      <div id="messages" role="log" aria-label="Chat messages" aria-live="polite" aria-relevant="additions"></div>
+
+      <button id="scroll-btn" class="scroll-btn" aria-label="Scroll to bottom">
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+    </div>
+
+    <div id="input-area">
+      <div style="display:flex;justify-content:center;margin-bottom:8px;">
+        <button id="stop-btn" style="display:none;" aria-label="Stop generating">
+          <i class="fa-solid fa-stop"></i> Stop generating
+        </button>
+      </div>
+      <div id="file-preview" role="list" aria-label="Attached files"></div>
+      <div class="input-wrapper">
+        <div class="input-row">
+          <button class="btn-icon" id="attach-btn" title="Attach file" style="flex-shrink:0;">
+            <i class="fa-solid fa-paperclip"></i>
+          </button>
+          <input type="file" id="file-input" multiple
+            accept=".txt,.md,.markdown,.csv,.json,.xml,.yaml,.yml,.log,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sh,.sql,.html,.css,.png,.jpg,.jpeg,.gif,.webp,.bmp,.pdf"
+            hidden>
+          <textarea id="message-input" placeholder="Message UmraniGPT…"
+            rows="1" aria-label="Message input" autocomplete="off" spellcheck="true"></textarea>
+          <div style="display:flex;align-items:flex-end;gap:6px;flex-shrink:0;">
+            <button class="btn-icon" id="voice-btn" title="Voice input" aria-pressed="false">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+            <button id="send-btn" disabled aria-label="Send (Ctrl+Enter)" title="Send (Ctrl+Enter)">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="input-footer">
+        <span>UmraniGPT may make mistakes — always verify important information.</span>
+        <span style="opacity:0.55;">· Thanks to <a href="https://susrc.com/" target="_blank" rel="noopener noreferrer" style="color:inherit;">SUSRC</a></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     SETTINGS MODAL — Appearance, Voice & Data only
+============================================================ -->
+<div class="modal-overlay" id="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="modal" id="settings-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="settings-title">
+        <i class="fa-solid fa-gear"></i> Settings
+      </div>
+      <button class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="settings-layout">
+
+        <!-- Nav -->
+        <nav class="settings-sidebar" aria-label="Settings sections">
+          <div class="settings-nav-item active" data-panel="appearance">
+            <i class="fa-solid fa-palette"></i><span>Appearance</span>
+          </div>
+          <div class="settings-nav-item" data-panel="ai">
+            <i class="fa-solid fa-sliders"></i><span>AI Response</span>
+          </div>
+          <div class="settings-nav-item" data-panel="voice">
+            <i class="fa-solid fa-microphone"></i><span>Voice</span>
+          </div>
+          <div class="settings-nav-item" data-panel="data">
+            <i class="fa-solid fa-database"></i><span>Data</span>
+          </div>
+          <div class="settings-nav-item" data-panel="connection">
+            <i class="fa-solid fa-server"></i><span>Connection</span>
+          </div>
+        </nav>
+
+        <!-- ── Appearance ── -->
+        <section class="settings-panel active" id="panel-appearance" aria-label="Appearance">
+
+          <div class="settings-section">
+            <div class="settings-section-title">Theme</div>
+            <div id="theme-grid" class="theme-grid" role="radiogroup" aria-label="Select theme"></div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Display</div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Font Size</span>
+                <small>Base font size in pixels</small>
+              </div>
+              <div class="settings-row-control">
+                <div class="form-range-wrap" style="width:160px;">
+                  <input type="range" class="form-range" id="font-size-range" min="12" max="20" step="1" value="15">
+                  <span class="range-value" id="font-size-val">15px</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Animations</span>
+                <small>Enable UI transitions and effects</small>
+              </div>
+              <div class="settings-row-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="animations-toggle" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Custom Cursor</span>
+                <small>Dot &amp; ring cursor effect (desktop only)</small>
+              </div>
+              <div class="settings-row-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="cursor-toggle" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Timestamps</span>
+                <small>Show time on each message</small>
+              </div>
+              <div class="settings-row-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="timestamps-toggle" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Code Line Numbers</span>
+                <small>Show line numbers in code blocks</small>
+              </div>
+              <div class="settings-row-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="line-numbers-toggle" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── AI Response ── -->
+        <section class="settings-panel" id="panel-ai" aria-label="AI Response">
+          <div class="settings-section">
+            <div class="settings-section-title">Response Style</div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span>Temperature</span>
+                <small>Lower is more focused and predictable, higher is more varied and creative</small>
+              </div>
+              <div class="settings-row-control">
+                <div class="form-range-wrap" style="width:160px;">
+                  <input type="range" class="form-range" id="temperature-range" min="0" max="2" step="0.1" value="0.7">
+                  <span class="range-value" id="temperature-val">0.7</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Personal System Prompt</div>
+            <p style="font-size:var(--text-sm);color:var(--text-secondary);margin:0 0 var(--space-3);">
+              Optional instructions added to every conversation — e.g. "Always reply in Roman Urdu" or "You are a coding assistant."
+            </p>
+            <textarea
+              id="user-system-prompt"
+              rows="4"
+              placeholder="e.g. Always reply in Roman Urdu and use simple language."
+              style="width:100%;padding:10px 12px;background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font-primary);font-size:var(--text-sm);resize:vertical;line-height:1.5;outline:none;transition:border-color var(--t-fast);"
+            ></textarea>
+            <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);">
+              <button class="btn-primary" id="save-system-prompt-btn" style="font-size:var(--text-sm);padding:7px 16px;">
+                <i class="fa-solid fa-floppy-disk"></i> Save
+              </button>
+              <button class="btn-secondary" id="clear-system-prompt-btn" style="font-size:var(--text-sm);padding:7px 12px;">
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div style="padding:var(--space-3);background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--text-secondary);">
+              <i class="fa-solid fa-circle-info" style="color:var(--accent-primary);margin-right:8px;"></i>
+              Temperature and your personal prompt are the only AI settings you can change — the model and all other parameters are managed by the administrator.
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Voice ── -->
+        <section class="settings-panel" id="panel-voice" aria-label="Voice">
+
+          <div class="settings-section">
+            <div class="settings-section-title">Speech Recognition</div>
+            <div style="padding:var(--space-3);background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--text-secondary);">
+              <i class="fa-solid fa-microphone" style="color:var(--accent-primary);margin-right:8px;"></i>
+              Click the microphone icon in the chat input to start voice input.
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Text-to-Speech</div>
+
+            <div class="settings-row">
+              <div class="settings-row-label"><span>Voice</span><small>Select a synthesis voice</small></div>
+              <div class="settings-row-control">
+                <select class="form-select" id="voice-select" style="width:200px;"></select>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label"><span>Speed</span></div>
+              <div class="settings-row-control">
+                <div class="form-range-wrap" style="width:160px;">
+                  <input type="range" class="form-range" id="voice-speed-range" min="0.5" max="2" step="0.1" value="1">
+                  <span class="range-value" id="voice-speed-val">1</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label"><span>Pitch</span></div>
+              <div class="settings-row-control">
+                <div class="form-range-wrap" style="width:160px;">
+                  <input type="range" class="form-range" id="voice-pitch-range" min="0.5" max="2" step="0.1" value="1">
+                  <span class="range-value" id="voice-pitch-val">1</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label"><span>Volume</span></div>
+              <div class="settings-row-control">
+                <div class="form-range-wrap" style="width:160px;">
+                  <input type="range" class="form-range" id="voice-volume-range" min="0" max="1" step="0.05" value="1">
+                  <span class="range-value" id="voice-volume-val">1</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:var(--space-2);">
+              <button class="btn-secondary" id="test-voice-btn"><i class="fa-solid fa-play"></i> Test</button>
+              <button class="btn-secondary" id="stop-voice-btn"><i class="fa-solid fa-stop"></i> Stop</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Data ── -->
+        <section class="settings-panel" id="panel-data" aria-label="Data">
+
+          <div class="settings-section">
+            <div class="settings-section-title">Statistics</div>
+            <div id="data-stats"></div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Import & Export</div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+              <button class="btn-secondary" id="export-all-btn">
+                <i class="fa-solid fa-file-export"></i> Export All Chats
+              </button>
+              <button class="btn-secondary" id="import-all-btn">
+                <i class="fa-solid fa-file-import"></i> Import Chats
+              </button>
+              <button class="btn-secondary" id="backup-settings-btn">
+                <i class="fa-solid fa-floppy-disk"></i> Backup Settings
+              </button>
+              <button class="btn-secondary" id="restore-settings-btn">
+                <i class="fa-solid fa-upload"></i> Restore Settings
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section danger-zone">
+            <div class="danger-zone-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+              <button class="btn-danger" id="clear-history-btn">
+                <i class="fa-solid fa-trash"></i> Clear All Chat History
+              </button>
+              <button class="btn-danger" id="clear-settings-btn">
+                <i class="fa-solid fa-rotate-left"></i> Reset All Settings
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Connection ── -->
+        <section class="settings-panel" id="panel-connection" aria-label="Connection">
+          <div class="settings-section">
+            <div class="settings-section-title">AI Provider Status</div>
+            <div id="provider-status-card" style="padding:12px 14px;background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:var(--space-3);display:flex;align-items:center;gap:10px;">
+              <span class="status-dot" id="provider-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex-shrink:0;"></span>
+              <span id="provider-label" style="color:var(--text-secondary);">Checking…</span>
+            </div>
+            <div id="conn-result" class="url-test-result" style="display:none;" role="alert"></div>
+            <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+              <button class="btn-secondary" id="test-connection-btn">
+                <i class="fa-solid fa-plug"></i> Test Connection
+              </button>
+              <button class="btn-secondary" id="ping-btn">
+                <i class="fa-solid fa-satellite-dish"></i> Ping
+              </button>
+            </div>
+            <div style="margin-top:var(--space-3);padding:var(--space-3);background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--text-secondary);">
+              <i class="fa-solid fa-circle-info" style="color:var(--accent-primary);margin-right:8px;"></i>
+              The AI model and server configuration are managed by the administrator.
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/security.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/theme.js"></script>
+
+<script src="services/stream.js"></script>
+<script src="services/ollama.js"></script>
+
+<script src="js/voice.js"></script>
+<script src="js/markdown.js"></script>
+<script src="js/codeblock.js"></script>
+<script src="js/search.js"></script>
+<script src="js/docextract.js"></script>
+<script src="js/dragdrop.js"></script>
+<script src="js/history.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+<script src="js/cursor.js"></script>
+
+<script>
+  window.addEventListener('load', () => {
+    document.body.classList.remove('preload');
+    const btn = document.getElementById('mobile-menu-btn');
+    const check = () => { if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none'; };
+    check();
+    window.addEventListener('resize', check);
+    // Init custom cursor (auto-detects touch/mobile and skips there)
+    if (window.AppCursor) window.AppCursor.init();
+  });
+</script>
+</body>
+</html>
